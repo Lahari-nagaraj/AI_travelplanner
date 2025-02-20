@@ -8,6 +8,15 @@ import {
 } from "@/constants/options";
 import { toast } from "sonner";
 import { chatSession } from "@/service/AIModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { FcGoogle } from "react-icons/fc";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 function CreateTrip() {
   const [place, setPlace] = useState(null);
@@ -17,6 +26,7 @@ function CreateTrip() {
     budget: "",
     traveler: "",
   });
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleInputChange = (name, value) => {
     setFormData((prev) => {
@@ -30,8 +40,46 @@ function CreateTrip() {
     console.log("Form Data Updated:", formData);
   }, [formData]);
 
-  const OnGenerateTrip = async() => {
-    
+  const login = useGoogleLogin({
+    onSuccess: async (tokenInfo) => {
+      try {
+        console.log("Login Success:", tokenInfo);
+        await GetUserProfile(tokenInfo);
+      } catch (error) {
+        console.error("Login Failed:", error);
+      }
+    },
+    onError: (error) => console.log("Login Error:", error),
+  });
+
+  const GetUserProfile = async (tokenInfo) => {
+    try {
+      const { data } = await axios.get(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo.access_token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenInfo.access_token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      console.log("User Info:", data); // ✅ Debugging user info
+      localStorage.setItem("user", JSON.stringify(data));
+      setOpenDialog(false);
+      OnGenerateTrip();
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  const OnGenerateTrip = async () => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      setOpenDialog(true);
+      return;
+    }
+
     if (
       !formData?.location ||
       !formData?.noOfDays ||
@@ -42,21 +90,21 @@ function CreateTrip() {
       toast("Please fill all the details correctly.");
       return;
     }
-    const FINAL_PROMPT = AI_PROMPT.replace(
-      "{location}",
-      formData?.location?.label
-    )
+
+    const FINAL_PROMPT = AI_PROMPT.replace("{location}", formData?.location)
       .replace("{totalDays}", formData?.noOfDays)
       .replace("{traveler}", formData?.traveler)
       .replace("{budget}", formData?.budget)
       .replace("{totalDays}", formData?.noOfDays);
 
-    console.log(FINAL_PROMPT);
+    console.log("Generated AI Prompt:", FINAL_PROMPT);
 
-    const result = await chatSession.sendMessage(FINAL_PROMPT);
-
-    console.log(result?.response?.text());
-    
+    try {
+      const result = await chatSession.sendMessage(FINAL_PROMPT);
+      console.log("AI Response:", result?.response?.text());
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+    }
   };
 
   return (
@@ -80,7 +128,7 @@ function CreateTrip() {
               value: place,
               onChange: (v) => {
                 setPlace(v);
-                handleInputChange("location", v.label); // ✅ Ensure only label is stored
+                handleInputChange("location", v.label); // ✅ Stores only label
               },
             }}
           />
@@ -148,6 +196,26 @@ function CreateTrip() {
           Generate Trip
         </Button>
       </div>
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogDescription>
+              <img src="/logo.svg" />
+              <h2 className="font-bold text-lg mt-7">Sign in with Google</h2>
+              <p>Sign in to the app with Google Authentication securely</p>
+
+              <Button
+                onClick={login}
+                className="w-full mt-5 flex gap-4 items-center"
+              >
+                <FcGoogle className="h-7 w-7" />
+                Sign in with Google
+              </Button>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
