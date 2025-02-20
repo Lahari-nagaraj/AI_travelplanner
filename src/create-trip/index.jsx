@@ -17,6 +17,9 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/service/firebaseConfig";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function CreateTrip() {
   const [place, setPlace] = useState(null);
@@ -28,10 +31,12 @@ function CreateTrip() {
   });
   const [openDialog, setOpenDialog] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const handleInputChange = (name, value) => {
     setFormData((prev) => {
       const updatedData = { ...prev, [name]: value };
-      console.log("Updated formData:", updatedData); // ✅ Debugging here
+      console.log("Updated formData:", updatedData);
       return updatedData;
     });
   };
@@ -52,6 +57,19 @@ function CreateTrip() {
     onError: (error) => console.log("Login Error:", error),
   });
 
+  const SaveAiTrip = async (TripData) => {
+    setLoading(true);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const docId = Date.now().toString();
+    await setDoc(doc(db, "travel", docId), {
+      userSelection: formData,
+      tripData: JSON.parse(TripData),
+      userEmail: user?.email,
+      id: docId,
+    });
+    setLoading(false);
+  };
+
   const GetUserProfile = async (tokenInfo) => {
     try {
       const { data } = await axios.get(
@@ -64,7 +82,7 @@ function CreateTrip() {
         }
       );
 
-      console.log("User Info:", data); // ✅ Debugging user info
+      console.log("User Info:", data);
       localStorage.setItem("user", JSON.stringify(data));
       setOpenDialog(false);
       OnGenerateTrip();
@@ -90,18 +108,18 @@ function CreateTrip() {
       toast("Please fill all the details correctly.");
       return;
     }
-
+    setLoading(true);
     const FINAL_PROMPT = AI_PROMPT.replace("{location}", formData?.location)
       .replace("{totalDays}", formData?.noOfDays)
       .replace("{traveler}", formData?.traveler)
       .replace("{budget}", formData?.budget)
       .replace("{totalDays}", formData?.noOfDays);
 
-    console.log("Generated AI Prompt:", FINAL_PROMPT);
-
     try {
       const result = await chatSession.sendMessage(FINAL_PROMPT);
       console.log("AI Response:", result?.response?.text());
+      setLoading(false);
+      SaveAiTrip(result?.response?.text());
     } catch (error) {
       console.error("AI Generation Error:", error);
     }
@@ -128,7 +146,7 @@ function CreateTrip() {
               value: place,
               onChange: (v) => {
                 setPlace(v);
-                handleInputChange("location", v.label); // ✅ Stores only label
+                handleInputChange("location", v.label);
               },
             }}
           />
@@ -192,8 +210,12 @@ function CreateTrip() {
       </div>
 
       <div className="my-10 justify-end flex">
-        <Button type="primary" onClick={OnGenerateTrip}>
-          Generate Trip
+        <Button type="primary"disabled={loading} onClick={OnGenerateTrip}>
+          {loading ? (
+            <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin" />
+          ) : (
+            "Generate Trip"
+          )}
         </Button>
       </div>
 
