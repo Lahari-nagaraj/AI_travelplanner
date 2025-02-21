@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import InfoSection from "../components/InfoSection";
 import { useState } from "react";
 import Hotels from "../components/Hotels";
+import PlacesToVisit from "../components/PlacesToVisit";
 
 function Viewtrip() {
   const { tripId } = useParams();
@@ -33,6 +34,7 @@ function Viewtrip() {
     <div className="p-10 md:px-20 lg:px-44 xl:px-56">
         <InfoSection trip={trip}/>
         <Hotels trip={trip}/>
+        <PlacesToVisit trip={trip}/>
     </div>
   )
 }

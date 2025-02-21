@@ -7,16 +7,30 @@ function Hotels({ trip }) {
       <h2 className="font-bold text-xl mt-5">Hotel Recommendation</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {trip?.tripData?.hotels?.map((item, index) => {
-          // Find the key that contains "price"
+          // Find the correct key for Hotel Name (case-insensitive)
+          const nameKey = Object.keys(item).find(
+            (key) => key.toLowerCase() === "hotelname"
+          );
+          const hotelName = nameKey
+            ? item[nameKey]
+            : "Hotel Name Not Available";
+
+          // Find the correct key for Hotel Address (case-insensitive)
+          const addressKey = Object.keys(item).find(
+            (key) => key.toLowerCase() === "hoteladdress"
+          );
+          const hotelAddress = addressKey
+            ? item[addressKey]
+            : "Address Not Available";
+
+          // Find the key that contains "price" (case-insensitive)
           const priceKey = Object.keys(item).find((key) =>
             key.toLowerCase().includes("price")
           );
           const priceValue = priceKey ? item[priceKey] : "Price not available";
 
           // Construct the Google Maps query with both hotel name and address
-          const mapQuery = encodeURIComponent(
-            `${item?.hotelName || ""}, ${item?.hotelAddress || ""}`
-          );
+          const mapQuery = encodeURIComponent(`${hotelName}, ${hotelAddress}`);
 
           return (
             <Link
@@ -33,12 +47,10 @@ function Hotels({ trip }) {
                   alt="Hotel"
                 />
                 <div className="my-2 flex flex-col gap-2">
-                  <h2 className="font-semibold">{item?.hotelName}</h2>
-                  <h2 className="text-sm text-gray-600">
-                    📌 {item?.hotelAddress}
-                  </h2>
+                  <h2 className="font-semibold">{hotelName}</h2>
+                  <h2 className="text-sm text-gray-600">📌 {hotelAddress}</h2>
                   <h2 className="text-sm">💰 {priceValue}</h2>
-                  <h2 className="text-sm">⭐ {item?.rating}</h2>
+                  <h2 className="text-sm"> ⭐{item?.rating}</h2>
                 </div>
               </div>
             </Link>
