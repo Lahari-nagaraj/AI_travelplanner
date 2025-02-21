@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Hotels({ trip }) {
   return (
@@ -12,18 +13,35 @@ function Hotels({ trip }) {
           );
           const priceValue = priceKey ? item[priceKey] : "Price not available";
 
+          // Construct the Google Maps query with both hotel name and address
+          const mapQuery = encodeURIComponent(
+            `${item?.hotelName || ""}, ${item?.hotelAddress || ""}`
+          );
+
           return (
-            <div key={index} className="hover:scale-110 transition-all cursor-pointer">
-              <img src="/plane.jpg" className="rounded-xl w-50 h-32" />
-              <div className="my-2 flex flex-col gap-2">
-                <h2 className="font-semibold">{item?.hotelName}</h2>
-                <h2 className="text-sm text-gray-600">
-                  📌{item?.hotelAddress}/
-                </h2>
-                <h2 className="text-sm">💰{priceValue}</h2>
-                <h2 className="text-sm">⭐{item?.rating}</h2>
+            <Link
+              key={index}
+              to={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:scale-110 transition-all cursor-pointer"
+            >
+              <div>
+                <img
+                  src="/plane.jpg"
+                  className="rounded-xl w-50 h-32"
+                  alt="Hotel"
+                />
+                <div className="my-2 flex flex-col gap-2">
+                  <h2 className="font-semibold">{item?.hotelName}</h2>
+                  <h2 className="text-sm text-gray-600">
+                    📌 {item?.hotelAddress}
+                  </h2>
+                  <h2 className="text-sm">💰 {priceValue}</h2>
+                  <h2 className="text-sm">⭐ {item?.rating}</h2>
+                </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
