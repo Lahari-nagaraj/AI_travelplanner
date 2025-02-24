@@ -6,7 +6,7 @@ function PlacesToVisit({ trip }) {
     return <h2 className="text-red-500">No itinerary data available</h2>;
   }
 
-  // Extract itinerary whether it is inside tripData or directly in trip
+  // Extract itinerary (supports different structures)
   const itinerary = trip.tripData?.itinerary || trip.itinerary || trip;
 
   if (!itinerary || Object.keys(itinerary).length === 0) {
@@ -18,12 +18,12 @@ function PlacesToVisit({ trip }) {
       <h2 className="font-bold text-lg">Places To Visit</h2>
       <div>
         {Object.entries(itinerary).map(([day, details], index) => {
-          // Converts "day1" to "Day 1"
+          // Convert "day1" → "Day 1"
           const formattedDay = day.replace(/day(\d+)/i, "Day $1");
 
-          // Extracts all locations (morning, afternoon, evening, or activities array)
+          // Extract all activities (morning, afternoon, evening)
           const activities = Object.values(details).filter(
-            (activity) => activity.location || activity.place
+            (activity) => activity.activity
           );
 
           return (
