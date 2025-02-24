@@ -6,8 +6,8 @@ function PlacesToVisit({ trip }) {
     return <h2 className="text-red-500">No itinerary data available</h2>;
   }
 
-  // Extract itinerary while supporting different structures
-  const itinerary = trip.tripData?.itinerary || trip.itinerary || trip;
+  // Extract itinerary data regardless of key structure
+  const itinerary = trip.itinerary || trip.tripData?.itinerary || trip;
 
   if (!itinerary || Object.keys(itinerary).length === 0) {
     return <h2 className="text-gray-500">No itinerary available.</h2>;
@@ -21,14 +21,10 @@ function PlacesToVisit({ trip }) {
           const formattedDay = dayKey.replace(/day(\d+)/i, "Day $1");
           const theme = dayData.theme || "Itinerary";
 
-          // Extract morning, afternoon, and evening activities if present
+          // Extract morning, afternoon, and evening places, handling missing data
           const activities = ["morning", "afternoon", "evening"]
-            .map((timeOfDay) => {
-              const details = dayData[timeOfDay];
-              if (!details || !details.activity) return null; // Skip if no valid activity
-              return { timeOfDay, ...details };
-            })
-            .filter(Boolean); // Remove null values
+            .map((timeOfDay) => dayData[timeOfDay])
+            .filter(Boolean); // Removes null/undefined
 
           return (
             <div key={index} className="mt-5">
@@ -40,7 +36,9 @@ function PlacesToVisit({ trip }) {
                   activities.map((place, i) => (
                     <div key={i}>
                       <h2 className="font-medium text-sm text-orange-600">
-                        {place.time || place.timeOfDay.toUpperCase()}
+                        {place.time ||
+                          place.timeOfDay?.toUpperCase() ||
+                          "Time Not Specified"}
                       </h2>
                       <PlaceCard place={place} />
                     </div>
