@@ -21,10 +21,19 @@ function PlacesToVisit({ trip }) {
           const formattedDay = dayKey.replace(/day(\d+)/i, "Day $1");
           const theme = dayData.theme || "Itinerary";
 
-          // Extract morning, afternoon, and evening places, handling missing data
-          const activities = ["morning", "afternoon", "evening"]
-            .map((timeOfDay) => dayData[timeOfDay])
-            .filter(Boolean); // Removes null/undefined
+          // Extract activities based on different structures
+          let activities = [];
+
+          if (dayData.morning || dayData.afternoon || dayData.evening) {
+            activities = ["morning", "afternoon", "evening"]
+              .map((timeOfDay) => dayData[timeOfDay])
+              .filter(Boolean); // Removes undefined/null values
+          } else if (Array.isArray(dayData.activities)) {
+            activities = dayData.activities.map((activity) => ({
+              ...activity,
+              time: activity.bestTimeToVisit || "Time Not Specified",
+            }));
+          }
 
           return (
             <div key={index} className="mt-5">
@@ -37,6 +46,7 @@ function PlacesToVisit({ trip }) {
                     <div key={i}>
                       <h2 className="font-medium text-sm text-orange-600">
                         {place.time ||
+                          place.recommendedTime ||
                           place.timeOfDay?.toUpperCase() ||
                           "Time Not Specified"}
                       </h2>
