@@ -1,43 +1,45 @@
 import React from "react";
+import { Button } from "antd";
+import { FaMapLocationDot } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
-function PlaceCard({ timeOfDay, placeDetails }) {
+function PlaceCard({ place }) {
+  if (!place || (!place.place && !place.location)) {
+    return null;
+  }
+
   return (
-    <div className="flex bg-white shadow-md rounded-lg overflow-hidden">
-      {/* Left Side: Image */}
-      <div className="w-1/3">
-        <img src="/plane.jpg" className="w-full h-full object-cover" alt={placeDetails.place} />
+    <Link
+      to={
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(place.place || place.location)
+      }
+      target="_blank"
+    >
+      <div className="border rounded-xl mt-2 p-3 gap-5 flex hover:scale-105 transition-all hover:shadow-md cursor-pointer">
+        <img
+          src="/plane.jpg"
+          alt=""
+          className="w-[130px] h-[130px] rounded-xl"
+        />
+        <div>
+          <h2 className="font-bold text-lg">{place.place || place.location}</h2>
+          <p className="text-sm text-gray-400">
+            {place.details || "No details available"}
+          </p>
+          <h2 className="mt-2">
+            🕛{" "}
+            {place.approxTravelTime ||
+              place.travelTimeFromPrevious ||
+              place.travelTimeFromHotel ||
+              "Travel time not available"}
+          </h2>
+          <Button size="sm">
+            <FaMapLocationDot />
+          </Button>
+        </div>
       </div>
-
-      {/* Right Side: Details */}
-      <div className="w-2/3 p-4">
-        <h3 className="font-semibold capitalize text-gray-600">{timeOfDay}</h3>
-        <h2 className="font-bold text-lg mb-1">📍 {placeDetails.place}</h2>
-
-        {/* Description (Smaller Font + Gray Color) */}
-        {placeDetails.details && (
-          <p className="text-xs text-gray-500">{placeDetails.details}</p>
-        )}
-
-        {/* Dynamically extract travel time fields */}
-        {Object.entries(placeDetails)
-          .filter(([key]) => key.toLowerCase().includes("travel_time"))
-          .map(([key, value], i) => (
-            <p key={i} className="text-sm text-gray-700">🚗 Travel Time: {value}</p>
-          ))}
-
-        {/* Dynamically extract activity duration */}
-        {placeDetails.activity_duration && (
-          <p className="text-sm text-gray-700">⏳ Duration: {placeDetails.activity_duration}</p>
-        )}
-
-        {/* Cost (Different Color for Highlighting) */}
-        {Object.entries(placeDetails)
-          .filter(([key]) => key.toLowerCase().includes("cost") || key.toLowerCase().includes("entry_fee"))
-          .map(([key, value], i) => (
-            <p key={i} className="text-sm text-blue-600 font-semibold">💰 {value}</p>
-          ))}
-      </div>
-    </div>
+    </Link>
   );
 }
 

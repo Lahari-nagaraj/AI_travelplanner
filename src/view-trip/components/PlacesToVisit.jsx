@@ -1,67 +1,55 @@
 import React from "react";
-import PlaceCard from "./PlaceCard"; // Import the new component
+import PlaceCard from "./PlaceCard";
 
 function PlacesToVisit({ trip }) {
+  if (!trip || typeof trip !== "object") {
+    return <h2 className="text-red-500">No itinerary data available</h2>;
+  }
+
+  // Extract itinerary whether it is inside tripData or directly in trip
+  const itinerary = trip.tripData?.itinerary || trip.itinerary || trip;
+
+  if (!itinerary || Object.keys(itinerary).length === 0) {
+    return <h2 className="text-gray-500">No itinerary available.</h2>;
+  }
+
   return (
     <div>
-      <h2 className="font-bold text-xl mt-5 text-center">Places To Visit</h2>
+      <h2 className="font-bold text-lg">Places To Visit</h2>
+      <div>
+        {Object.entries(itinerary).map(([day, details], index) => {
+          // Converts "day1" to "Day 1"
+          const formattedDay = day.replace(/day(\d+)/i, "Day $1");
 
-      <div className="p-4">
-        {trip?.tripData?.itinerary &&
-          Object.entries(trip.tripData.itinerary).map(
-            ([day, details], index) => (
-              <div key={index} className="mb-6">
-                {/* Day Heading */}
-                <h2 className="font-bold text-lg mb-3">
-                  {day.replace("day", "Day ")}
-                </h2>
+          // Extracts all locations (morning, afternoon, evening, or activities array)
+          const activities = Object.values(details).filter(
+            (activity) => activity.location || activity.place
+          );
 
-                {/* Display Location Focus if available */}
-                {details.location_focus && (
-                  <h3 className="text-md font-semibold mb-2">
-                    📍 {details.location_focus}
-                  </h3>
-                )}
-
-                {/* If multiple options exist (e.g., Gulmarg or Pahalgam) */}
-                {Object.keys(details).some((key) => key.includes("option")) ? (
-                  Object.entries(details)
-                    .filter(([key]) => key.includes("option"))
-                    .map(([optionKey, optionDetails], optIdx) => (
-                      <div key={optIdx} className="mt-4">
-                        <h3 className="text-md font-semibold mb-2">
-                          🏔 {optionDetails.destination}
-                        </h3>
-
-                        <div className="flex flex-col gap-5">
-                          {Object.entries(optionDetails)
-                            .filter(([key]) => key !== "destination") // Ignore destination key
-                            .map(([timeOfDay, placeDetails], idx) => (
-                              <PlaceCard
-                                key={idx}
-                                timeOfDay={timeOfDay}
-                                placeDetails={placeDetails}
-                              />
-                            ))}
-                        </div>
-                      </div>
-                    ))
+          return (
+            <div key={index} className="mt-5">
+              <h2 className="font-medium text-lg">
+                {formattedDay} - {details.theme || "Itinerary"}
+              </h2>
+              <div className="grid grid-cols-2 gap-5">
+                {activities.length > 0 ? (
+                  activities.map((place, i) => (
+                    <div key={i}>
+                      <h2 className="font-medium text-sm text-orange-600">
+                        {place.bestTimeToVisit || "Best Time: Not Specified"}
+                      </h2>
+                      <PlaceCard place={place} />
+                    </div>
+                  ))
                 ) : (
-                  <div className="flex flex-col gap-5">
-                    {Object.entries(details)
-                      .filter(([key]) => key !== "location_focus") // Ignore location focus
-                      .map(([timeOfDay, placeDetails], idx) => (
-                        <PlaceCard
-                          key={idx}
-                          timeOfDay={timeOfDay}
-                          placeDetails={placeDetails}
-                        />
-                      ))}
-                  </div>
+                  <p className="text-gray-500">
+                    No activities planned for this day.
+                  </p>
                 )}
               </div>
-            )
-          )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
