@@ -23,8 +23,12 @@ function PlacesToVisit({ trip }) {
 
           // Extract morning, afternoon, and evening activities if present
           const activities = ["morning", "afternoon", "evening"]
-            .map((timeOfDay) => ({ timeOfDay, ...dayData[timeOfDay] }))
-            .filter((details) => details.activity); // Ensure there's an activity
+            .map((timeOfDay) => {
+              const details = dayData[timeOfDay];
+              if (!details || !details.activity) return null; // Skip if no valid activity
+              return { timeOfDay, ...details };
+            })
+            .filter(Boolean); // Remove null values
 
           return (
             <div key={index} className="mt-5">
@@ -36,8 +40,7 @@ function PlacesToVisit({ trip }) {
                   activities.map((place, i) => (
                     <div key={i}>
                       <h2 className="font-medium text-sm text-orange-600">
-                        {place.timeOfDay.toUpperCase()} -{" "}
-                        {dayData.city || "Unknown City"}
+                        {place.time || place.timeOfDay.toUpperCase()}
                       </h2>
                       <PlaceCard place={place} />
                     </div>
