@@ -34,7 +34,7 @@ function InfoSection({trip}) {
     <div>
       <img
         src={PhotoUrl}
-        className="h-[340px] w-full object-cover rounded-xl"
+        className="h-[350px] w-[900px] object-cover rounded-xl"
       />
       <div className="flex justify-between items-center">
         <div className="my-5 flex flex-col gap-2">
