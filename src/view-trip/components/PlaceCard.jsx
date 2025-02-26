@@ -77,7 +77,7 @@ function PlaceCard({ place }) {
         <img
           src={place.imageURL || PhotoUrl}
           alt={activity}
-          className="w-[130px] h-[130px] rounded-xl object-cover"
+          className="w-[150px] h-[150px] rounded-xl object-cover"
           onError={(e) => (e.target.src = "/placeholder.jpg")} // Fallback if image fails to load
         />
         <div>

@@ -46,8 +46,8 @@ function Header() {
   };
 
   return (
-    <div className="p-3 shadow-sm flex justify-between items-center px-5">
-      <img src="/logo.svg" alt="Logo" />
+    <div className="p-3 shadow-sm flex justify-between  items-center px-5">
+      <img src="/travel.png" alt="Logo" className="w-[60px] h-[60px] ml-6" />
 
       <div>
         {user ? (

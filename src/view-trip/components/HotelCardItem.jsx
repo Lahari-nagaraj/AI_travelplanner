@@ -36,7 +36,7 @@ function HotelCardItem({ hotel }) {
       className="hover:scale-110 transition-all cursor-pointer"
     >
       <div>
-        <img src={PhotoUrl} className="rounded-xl w-50 h-[150px]" alt="Hotel" />
+        <img src={PhotoUrl} className="rounded-xl w-[150px] h-[150px]" alt="Hotel" />
         <div className="my-2 flex flex-col gap-2">
           <h2 className="font-semibold">{hotel.name}</h2>
           <h2 className="text-sm text-gray-600">📌 {hotel.address}</h2>
