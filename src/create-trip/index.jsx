@@ -69,6 +69,8 @@ function CreateTrip() {
       id: docId,
     });
     setLoading(false);
+    window.dispatchEvent(new Event("tripGenerated"));
+
     navigate('/view-trip/'+docId)
   };
 
@@ -86,7 +88,9 @@ function CreateTrip() {
 
       console.log("User Info:", data);
       localStorage.setItem("user", JSON.stringify(data));
-      setOpenDialog(false);
+    window.dispatchEvent(new Event("userUpdated"));
+    
+        setOpenDialog(false);
       OnGenerateTrip();
     } catch (error) {
       console.error("Error fetching user profile:", error);

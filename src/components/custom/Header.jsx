@@ -9,40 +9,40 @@ import { googleLogout, GoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import { jwtDecode } from "jwt-decode";
 
-
 function Header() {
   const [user, setUser] = useState(null);
 
-  // Load user from localStorage on component mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    const updateUser = () => {
+      const updatedUser = localStorage.getItem("user");
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+    };
+
+    // Listen for user updates & trip creation
+    window.addEventListener("userUpdated", updateUser);
+    window.addEventListener("tripCreated", updateUser); // Update on trip creation
+
+    return () => {
+      window.removeEventListener("userUpdated", updateUser);
+      window.removeEventListener("tripCreated", updateUser);
+    };
   }, []);
 
-  useEffect(() => {
-    console.log("User Data:", user); // Debugging log
-  }, [user]);
-
   const handleGoogleSuccess = (credentialResponse) => {
-    console.log("Google Auth Success:", credentialResponse);
-const decodedUser = jwtDecode(credentialResponse.credential);
-
-    console.log("Decoded User:", decodedUser);
-
+    const decodedUser = jwtDecode(credentialResponse.credential);
     localStorage.setItem("user", JSON.stringify(decodedUser));
-    setUser(decodedUser); // Update state
-  };
-
-  const handleGoogleFailure = (error) => {
-    console.error("Google Sign-In Failed:", error);
+    window.dispatchEvent(new Event("userUpdated")); // Notify header
   };
 
   const handleLogout = () => {
     googleLogout();
     localStorage.removeItem("user");
-    setUser(null);
+    window.dispatchEvent(new Event("userUpdated"));
   };
 
   return (
@@ -59,18 +59,11 @@ const decodedUser = jwtDecode(credentialResponse.credential);
             </a>
             <Popover>
               <PopoverTrigger>
-                {user?.picture ? (
-                  <img
-                    src={user.picture}
-                    alt="User Avatar"
-                    className="h-[35px] w-[35px] rounded-full"
-                    onError={(e) => {
-                      console.error("Image Load Error", e);
-                    }}
-                  />
-                ) : (
-                  <span className="text-sm">No Image</span>
-                )}
+                <img
+                  src={user.picture}
+                  alt="User Avatar"
+                  className="h-[35px] w-[35px] rounded-full"
+                />
               </PopoverTrigger>
               <PopoverContent>
                 <h2 className="cursor-pointer" onClick={handleLogout}>
@@ -80,10 +73,7 @@ const decodedUser = jwtDecode(credentialResponse.credential);
             </Popover>
           </div>
         ) : (
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleFailure}
-          />
+          <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => {}} />
         )}
       </div>
     </div>
