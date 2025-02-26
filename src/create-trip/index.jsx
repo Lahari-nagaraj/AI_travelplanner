@@ -62,7 +62,15 @@ function CreateTrip() {
     setLoading(true);
     const user = JSON.parse(localStorage.getItem("user"));
     const docId = Date.now().toString();
-    await setDoc(doc(db, "travel", docId), {
+
+    console.log("Saving Trip:", {
+      userSelection: formData,
+      tripData: JSON.parse(TripData),
+      userEmail: user?.email,
+      id: docId,
+    });
+
+    await setDoc(doc(db, "travelai", docId), {
       userSelection: formData,
       tripData: JSON.parse(TripData),
       userEmail: user?.email,
