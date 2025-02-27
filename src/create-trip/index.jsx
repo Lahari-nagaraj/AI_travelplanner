@@ -224,7 +224,7 @@ function CreateTrip() {
       </div>
 
       <div className="my-10 justify-end flex">
-        <Button type="primary"disabled={loading} onClick={OnGenerateTrip}>
+        <Button type="primary" disabled={loading} onClick={OnGenerateTrip}>
           {loading ? (
             <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin" />
           ) : (
@@ -236,20 +236,21 @@ function CreateTrip() {
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogDescription>
-              <img src="/logo.svg" />
-              <h2 className="font-bold text-lg mt-7">Sign in with Google</h2>
-              <p>Sign in to the app with Google Authentication securely</p>
-
-              <Button
-                onClick={login}
-                className="w-full mt-5 flex gap-4 items-center"
-              >
-                <FcGoogle className="h-7 w-7" />
-                Sign in with Google
-              </Button>
+            <DialogDescription className="flex items-center gap-4">
+              <img src="/travel.png" className="w-[50px] h-[50px]" />
+              <h2 className="font-bold text-black text-lg">Sign in with Google</h2>
             </DialogDescription>
           </DialogHeader>
+          <p className="text-gray-600 text-sm text-center">
+            Sign in to the app with Google Authentication securely
+          </p>
+          <Button
+            onClick={login}
+            className="w-full mt-5 flex gap-4 items-center justify-center"
+          >
+            <FcGoogle className="h-6 w-6 text-black" />
+            Sign in with Google
+          </Button>
         </DialogContent>
       </Dialog>
     </div>

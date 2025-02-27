@@ -11,13 +11,14 @@ function Hero() {
         <span className="text-[#1a4a5e] block mb-2">
           Discover Your Next Adventure with AI
         </span>
-        <span className="text-[#2d6980]">
-          Personalized Itineraries at Your Fingertips
+        <span className="text-[#1e8eba]">
+          Smart, Seamless & Personalized Travel Plans
         </span>
       </h1>
       <p className="text-base md:text-lg text-[#436d7d] max-w-2xl font-light relative z-10">
-        Your personal trip planner and travel curator, creating custom
-        itineraries tailored to your interests and budget
+        Your smart travel companion curates unique trips tailored to your
+        passions and budget—turning your dream destinations into reality with
+        ease!
       </p>
       <Link to={"/create-trip"} className="relative z-10">
         <Button className="mt-4 text-base px-7 py-5 bg-[#1a4a5e] hover:bg-[#2d6980] transition-colors">
