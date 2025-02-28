@@ -29,10 +29,7 @@ function PlacesToVisit({ trip }) {
               .map((timeOfDay) => dayData[timeOfDay])
               .filter(Boolean); // Removes undefined/null values
           } else if (Array.isArray(dayData.activities)) {
-            activities = dayData.activities.map((activity) => ({
-              ...activity,
-              time: activity.bestTimeToVisit || "Time Not Specified",
-            }));
+            activities = dayData.activities;
           }
 
           return (
@@ -44,12 +41,6 @@ function PlacesToVisit({ trip }) {
                 {activities.length > 0 ? (
                   activities.map((place, i) => (
                     <div key={i}>
-                      <h2 className="font-medium text-sm text-orange-600">
-                        {place.time ||
-                          place.recommendedTime ||
-                          place.timeOfDay?.toUpperCase() ||
-                          "Time Not Specified"}
-                      </h2>
                       <PlaceCard place={place} />
                     </div>
                   ))
