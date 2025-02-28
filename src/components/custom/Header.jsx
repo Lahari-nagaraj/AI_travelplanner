@@ -53,22 +53,27 @@ function Header() {
         {user ? (
           <div className="flex items-center gap-3">
             <a href="/create-trip">
-              <Button variant="outline" className="rounded-full text-black border-white hover:bg-white hover:text-[#0A1929]">
+              <Button
+                variant="outline"
+                className="rounded-full text-black border-white hover:bg-white hover:text-[#0A1929]"
+              >
                 + Create Trip
               </Button>
             </a>
             <a href="/my-trips">
-              <Button variant="outline" className="rounded-full text-black border-white hover:bg-white hover:text-[#0A1929]">
+              <Button
+                variant="outline"
+                className="rounded-full text-black border-white hover:bg-white hover:text-[#0A1929]"
+              >
                 My Trips
               </Button>
             </a>
             <Popover>
-              <PopoverTrigger >
+              <PopoverTrigger>
                 <img
                   src={user.picture}
                   alt="User Avatar"
-                  className="h-[35px] w-[35px] rounded-full bg-white
-                  "
+                  className="h-[35px] w-[35px] rounded-full bg-white"
                 />
               </PopoverTrigger>
               <PopoverContent className="bg-white text-black">
@@ -79,7 +84,19 @@ function Header() {
             </Popover>
           </div>
         ) : (
-          <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => {}} />
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => {}}
+            render={({ onClick }) => (
+              <Button
+                onClick={onClick}
+                variant="outline"
+                className="rounded-full text-white border-white hover:bg-white hover:text-[#0A1929] flex items-center gap-2"
+              >
+                <FcGoogle className="text-xl" /> Sign In
+              </Button>
+            )}
+          />
         )}
       </div>
     </div>
