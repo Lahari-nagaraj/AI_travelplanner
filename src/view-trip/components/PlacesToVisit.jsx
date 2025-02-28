@@ -17,42 +17,44 @@ function PlacesToVisit({ trip }) {
     <div>
       <h2 className="font-bold text-lg">Places To Visit</h2>
       <div>
-        {Object.entries(itinerary).map(([dayKey, dayData], index) => {
-          const formattedDay = dayKey.replace(/day(\d+)/i, "Day $1");
-          const theme = dayData.theme || "Itinerary";
+        {Object.entries(itinerary)
+          .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+          .map(([dayKey, dayData], index) => {
+            const formattedDay = dayKey.replace(/day(\d+)/i, "Day $1");
+            const theme = dayData.theme || "Itinerary";
 
-          // Extract activities based on different structures
-          let activities = [];
+            // Extract activities based on different structures
+            let activities = [];
 
-          if (dayData.morning || dayData.afternoon || dayData.evening) {
-            activities = ["morning", "afternoon", "evening"]
-              .map((timeOfDay) => dayData[timeOfDay])
-              .filter(Boolean); // Removes undefined/null values
-          } else if (Array.isArray(dayData.activities)) {
-            activities = dayData.activities;
-          }
+            if (dayData.morning || dayData.afternoon || dayData.evening) {
+              activities = ["morning", "afternoon", "evening"]
+                .map((timeOfDay) => dayData[timeOfDay])
+                .filter(Boolean); // Removes undefined/null values
+            } else if (Array.isArray(dayData.activities)) {
+              activities = dayData.activities;
+            }
 
-          return (
-            <div key={index} className="mt-5">
-              <h2 className="font-medium text-lg">
-                {formattedDay} - {theme}
-              </h2>
-              <div className="grid grid-cols-2 gap-5">
-                {activities.length > 0 ? (
-                  activities.map((place, i) => (
-                    <div key={i}>
-                      <PlaceCard place={place} />
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500">
-                    No activities planned for this day.
-                  </p>
-                )}
+            return (
+              <div key={index} className="mt-5">
+                <h2 className="font-medium text-lg">
+                  {formattedDay} - {theme}
+                </h2>
+                <div className="grid grid-cols-2 gap-5">
+                  {activities.length > 0 ? (
+                    activities.map((place, i) => (
+                      <div key={i}>
+                        <PlaceCard place={place} />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">
+                      No activities planned for this day.
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );
