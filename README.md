@@ -155,46 +155,31 @@ This makes the application more robust against variations in AI-generated output
 
 ---
 ``
-
 ## 📸 Screenshots
 
-Add your own screenshots here.
-
-### Landing Page
-
-```text
-Add your landing page screenshot
-```
-
+### Landing page
+![Landing Page](https://github.com/Lahari-nagaraj/AI_travelplanner/blob/main/public/landingpage.png?raw=true)
 ### Create Trip
 
-```text
-Add your create trip screenshot
-```
+![Create Trip](https://github.com/Lahari-nagaraj/AI_travelplanner/blob/main/public/createtrip.png?raw=true)
 
 ### AI Trip Generation
 
-```text
-Add your AI generation screenshot
-```
+![AI Trip Generation](https://github.com/Lahari-nagaraj/AI_travelplanner/blob/main/public/Hotel.png?raw=true)
 
 ### Generated Trip
 
-```text
-Add your generated trip screenshot
-```
+![Generated Trip](https://github.com/Lahari-nagaraj/AI_travelplanner/blob/main/public/places.png?raw=true)
 
 ### Hotels
 
-```text
-Add your hotel section screenshot
-```
+![Hotels](https://github.com/Lahari-nagaraj/AI_travelplanner/blob/main/public/places2.png?raw=true)
 
 ### Places to Visit
 
-```text
-Add your places-to-visit screenshot
-```
+![Places to Visit](https://github.com/Lahari-nagaraj/AI_travelplanner/blob/main/public/saved.png?raw=true)
+
+
 
 ---
 
