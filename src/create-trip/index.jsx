@@ -21,7 +21,8 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/service/firebaseConfig";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useNavigate, useNavigation } from "react-router-dom";
-
+import { chatSession } from "@/service/AIModal";
+import { normalizeTripData } from "@/service/normalizeTrip";
 function CreateTrip() {
   const [place, setPlace] = useState(null);
   const [formData, setFormData] = useState({
@@ -60,26 +61,34 @@ function CreateTrip() {
 
   const SaveAiTrip = async (TripData) => {
     setLoading(true);
-    const user = JSON.parse(localStorage.getItem("user"));
-    const docId = Date.now().toString();
 
-    console.log("Saving Trip:", {
-      userSelection: formData,
-      tripData: JSON.parse(TripData),
-      userEmail: user?.email,
-      id: docId,
-    });
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const docId = Date.now().toString();
 
-    await setDoc(doc(db, "travelai", docId), {
-      userSelection: formData,
-      tripData: JSON.parse(TripData),
-      userEmail: user?.email,
-      id: docId,
-    });
-    setLoading(false);
-    window.dispatchEvent(new Event("tripGenerated"));
+      console.log("Saving normalized trip:", {
+        userSelection: formData,
+        tripData: TripData,
+        userEmail: user?.email,
+        id: docId,
+      });
 
-    navigate('/view-trip/'+docId)
+      await setDoc(doc(db, "travelai", docId), {
+        userSelection: formData,
+        tripData: TripData,
+        userEmail: user?.email,
+        id: docId,
+      });
+
+      window.dispatchEvent(new Event("tripGenerated"));
+
+      navigate("/view-trip/" + docId);
+    } catch (error) {
+      console.error("Error saving trip:", error);
+      toast("Failed to save trip.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const GetUserProfile = async (tokenInfo) => {
@@ -130,10 +139,17 @@ function CreateTrip() {
       .replace("{totalDays}", formData?.noOfDays);
 
     try {
-      const result = await sendMessageWithRetry(FINAL_PROMPT);
-      console.log("AI Response:", result?.response?.text());
-      setLoading(false);
-      SaveAiTrip(result?.response?.text());
+      const result = await chatSession.sendMessage(FINAL_PROMPT);
+
+      const rawResponse = result?.response?.text();
+
+      console.log("Raw AI Response:", rawResponse);
+
+      const normalizedTrip = normalizeTripData(rawResponse);
+
+      console.log("Normalized Trip:", normalizedTrip);
+
+      await SaveAiTrip(normalizedTrip);
     } catch (error) {
       console.error("AI Generation Error:", error);
       setLoading(false);

@@ -2,11 +2,7 @@ import React from "react";
 import HotelCardItem from "./HotelCardItem";
 
 function Hotels({ trip }) {
-  const tripData = Array.isArray(trip?.tripData)
-    ? trip.tripData[0]
-    : trip?.tripData;
-
-  const hotels = Array.isArray(tripData?.hotels) ? tripData.hotels : [];
+  const hotels = trip?.tripData?.hotel_options || [];
 
   return (
     <div>
@@ -17,44 +13,18 @@ function Hotels({ trip }) {
           No hotel recommendations available.
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-3">
-          {hotels.map((item, index) => {
-            const nameKey = Object.keys(item).find(
-              (key) => key.toLowerCase() === "hotelname",
-            );
-
-            const addressKey = Object.keys(item).find(
-              (key) => key.toLowerCase() === "hoteladdress",
-            );
-
-            const priceKey = Object.keys(item).find((key) =>
-              key.toLowerCase().includes("price"),
-            );
-
-            const hotelName = nameKey
-              ? item[nameKey]
-              : "Hotel Name Not Available";
-
-            const hotelAddress = addressKey
-              ? item[addressKey]
-              : "Address Not Available";
-
-            const priceValue = priceKey
-              ? item[priceKey]
-              : "Price not available";
-
-            return (
-              <HotelCardItem
-                key={index}
-                hotel={{
-                  name: hotelName,
-                  address: hotelAddress,
-                  price: priceValue,
-                  rating: item?.rating || "No rating available",
-                }}
-              />
-            );
-          })}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-5">
+          {hotels.map((hotel, index) => (
+            <HotelCardItem
+              key={index}
+              hotel={{
+                name: hotel.hotel_name,
+                address: hotel.hotel_address,
+                price: hotel.price || "Price not available",
+                rating: hotel.rating || "No rating available",
+              }}
+            />
+          ))}
         </div>
       )}
     </div>
