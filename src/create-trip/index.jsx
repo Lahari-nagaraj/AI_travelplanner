@@ -7,7 +7,7 @@ import {
   SelectTravelsList,
 } from "@/constants/options";
 import { toast } from "sonner";
-import { chatSession } from "@/service/AIModal";
+import { sendMessageWithRetry } from "@/service/AIModal";
 import {
   Dialog,
   DialogContent,
@@ -130,12 +130,14 @@ function CreateTrip() {
       .replace("{totalDays}", formData?.noOfDays);
 
     try {
-      const result = await chatSession.sendMessage(FINAL_PROMPT);
+      const result = await sendMessageWithRetry(FINAL_PROMPT);
       console.log("AI Response:", result?.response?.text());
       setLoading(false);
       SaveAiTrip(result?.response?.text());
     } catch (error) {
       console.error("AI Generation Error:", error);
+      setLoading(false);
+      toast.error("Gemini is temporarily busy. Please try again.");
     }
   };
 

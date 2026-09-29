@@ -6,55 +6,54 @@ function PlacesToVisit({ trip }) {
     return <h2 className="text-red-500">No itinerary data available</h2>;
   }
 
-  // Extract itinerary data regardless of key structure
-  const itinerary = trip.itinerary || trip.tripData?.itinerary || trip;
+  // tripData is stored as an array in Firebase
+  const tripData = Array.isArray(trip.tripData)
+    ? trip.tripData[0]
+    : trip.tripData;
 
-  if (!itinerary || Object.keys(itinerary).length === 0) {
-    return <h2 className="text-gray-500">No itinerary available.</h2>;
+  const itinerary = tripData?.itinerary;
+
+  if (!Array.isArray(itinerary) || itinerary.length === 0) {
+    return (
+      <div className="mt-5">
+        <h2 className="font-bold text-lg">Places To Visit</h2>
+        <p className="text-gray-500 mt-3">No itinerary available.</p>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="mt-5">
       <h2 className="font-bold text-lg">Places To Visit</h2>
+
       <div>
-        {Object.entries(itinerary)
-          .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-          .map(([dayKey, dayData], index) => {
-            const formattedDay = dayKey.replace(/day(\d+)/i, "Day $1");
-            const theme = dayData.theme || "Itinerary";
+        {itinerary.map((dayData, index) => {
+          const dayNumber = dayData?.day || index + 1;
+          const theme = dayData?.theme || "Itinerary";
+          const activities = Array.isArray(dayData?.activities)
+            ? dayData.activities
+            : [];
 
-            // Extract activities based on different structures
-            let activities = [];
+          return (
+            <div key={index} className="mt-5">
+              <h2 className="font-medium text-lg">
+                Day {dayNumber} - {theme}
+              </h2>
 
-            if (dayData.morning || dayData.afternoon || dayData.evening) {
-              activities = ["morning", "afternoon", "evening"]
-                .map((timeOfDay) => dayData[timeOfDay])
-                .filter(Boolean); // Removes undefined/null values
-            } else if (Array.isArray(dayData.activities)) {
-              activities = dayData.activities;
-            }
-
-            return (
-              <div key={index} className="mt-5">
-                <h2 className="font-medium text-lg">
-                  {formattedDay} - {theme}
-                </h2>
-                <div className="grid grid-cols-2 gap-5">
-                  {activities.length > 0 ? (
-                    activities.map((place, i) => (
-                      <div key={i}>
-                        <PlaceCard place={place} />
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500">
-                      No activities planned for this day.
-                    </p>
-                  )}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-3">
+                {activities.length > 0 ? (
+                  activities.map((place, i) => (
+                    <PlaceCard key={i} place={place} />
+                  ))
+                ) : (
+                  <p className="text-gray-500">
+                    No activities planned for this day.
+                  </p>
+                )}
               </div>
-            );
-          })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -5,46 +5,63 @@ import { Link } from "react-router-dom";
 import { GetPlaceDetails, PHOTO_REF_URL } from "@/service/GlobalApi";
 
 function PlaceCard({ place }) {
-  const [PhotoUrl, setPhotoUrl] = useState(null);
+  const [PhotoUrl, setPhotoUrl] = useState("/placeholder.jpg");
 
   useEffect(() => {
-    place && GetPlacePhoto();
+    if (place) {
+      GetPlacePhoto();
+    }
   }, [place]);
 
   const GetPlacePhoto = async () => {
     try {
+      const placeName =
+        place?.location ||
+        place?.activity ||
+        place?.place ||
+        place?.locationName;
+
+      if (!placeName) {
+        console.warn("No place name found:", place);
+        return;
+      }
+
       const data = {
-        textQuery: place.activity || place.place || place.locationName,
+        textQuery: placeName,
       };
+
       const response = await GetPlaceDetails(data);
 
-      // Ensure response has valid data
-      if (
-        response?.data?.places &&
-        response.data.places.length > 0 &&
-        response.data.places[0].photos &&
-        response.data.places[0].photos.length > 0
-      ) {
-        // Choose a valid index safely
-        const photoIndex = response.data.places[0].photos[3] // Prefers 4th image if available
-          ? 3
-          : response.data.places[0].photos[1] // Else takes 2nd image
-          ? 1
-          : 0; // Else takes the first image as fallback
+      const places = response?.data?.places;
 
-        const fetchedPhotoUrl = PHOTO_REF_URL.replace(
-          "{NAME}",
-          response.data.places[0].photos[photoIndex].name
-        );
-
-        setPhotoUrl(fetchedPhotoUrl);
-      } else {
-        console.warn("No valid photos found for place:", place);
-        setPhotoUrl("/placeholder.jpg"); // Fallback to a default placeholder image
+      if (!places || places.length === 0) {
+        console.warn("No Google place found:", placeName);
+        return;
       }
+
+      const photos = places[0]?.photos;
+
+      if (!photos || photos.length === 0) {
+        console.warn("No photos found:", placeName);
+        return;
+      }
+
+      const photoName = photos[0]?.name;
+
+      if (!photoName) {
+        return;
+      }
+
+      const fetchedPhotoUrl = PHOTO_REF_URL.replace("{NAME}", photoName);
+
+      setPhotoUrl(fetchedPhotoUrl);
     } catch (error) {
-      console.error("Error fetching place details:", error);
-      setPhotoUrl("/placeholder.jpg"); // Ensures UI doesn't break on error
+      console.error(
+        "Error fetching place details:",
+        error?.response?.data || error,
+      );
+
+      setPhotoUrl("/placeholder.jpg");
     }
   };
 
@@ -52,39 +69,54 @@ function PlaceCard({ place }) {
     return null;
   }
 
-  // Extracting relevant details with fallbacks
+  // IMPORTANT: Gemini uses "location"
   const activity =
-    place.activity || place.place || place.locationName || "Unknown Place";
+    place.location ||
+    place.activity ||
+    place.place ||
+    place.locationName ||
+    "Unknown Place";
+
   const description =
     place.description || place.details || "No details available";
+
   const travelTime =
+    place.travelTimeFromPrevious ||
     place.travelTimeFromHotel ||
-    place.approximate_time_to_reach_from_calangute_hotel ||
-    place.approximate_time_to_reach_from_palolem ||
     place.approximate_time_to_reach ||
-    place.travelTimeFromHotel ||
-    place.timeTravelTo||
+    place.timeTravelTo ||
     "Travel time not available";
+
+  const time = place.time || "";
 
   return (
     <Link
       to={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        activity
+        activity,
       )}`}
       target="_blank"
+      rel="noopener noreferrer"
     >
       <div className="border rounded-xl mt-2 p-3 gap-5 flex hover:scale-105 transition-all hover:shadow-md cursor-pointer">
         <img
-          src={place.imageURL || PhotoUrl}
+          src={PhotoUrl}
           alt={activity}
           className="w-[150px] h-[150px] rounded-xl object-cover"
-          onError={(e) => (e.target.src = "/placeholder.jpg")} // Fallback if image fails to load
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.jpg";
+          }}
         />
+
         <div>
           <h2 className="font-bold text-lg">{activity}</h2>
+
+          {time && <p className="text-sm text-gray-500">🕐 {time}</p>}
+
           <p className="text-sm text-gray-400">{description}</p>
+
           <h2 className="mt-2">🕛 {travelTime}</h2>
-          <Button size="sm">
+
+          <Button size="small">
             <FaMapLocationDot />
           </Button>
         </div>
